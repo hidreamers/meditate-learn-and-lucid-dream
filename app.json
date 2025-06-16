@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "lucid-dreaming-app",
+    "slug": "lucid-dreaming-",
+    "version": "1.0.0",
+    "sdkVersion": "53.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.hidreamers.luciddreaming"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6abdec2d-1d48-49ce-9463-2a4599e8459b"
+      }
+    }
+  },
+  "cli": {
+    "appVersionSource": "appVersion"
+  }
+}
