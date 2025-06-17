@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Dimensions, Platform, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const books = [
@@ -73,16 +73,15 @@ const { width } = Dimensions.get('window');
 
 export default function BooksScreen() {
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
       <View style={styles.header}>
-        <LinearGradient
-          colors={['#ffaf7b', '#d76d77', '#3a1c71']}
-          style={StyleSheet.absoluteFill}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
         <Text style={styles.headerTitle}>Books by Jerimiah Molfese</Text>
+        <Text style={styles.headerSubtitle}></Text>
       </View>
+
       <Text style={styles.description}>
         You will need the{' '}
         <Text
@@ -95,7 +94,7 @@ export default function BooksScreen() {
         </Text>{' '}
         to access these books.
       </Text>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {books.map(book => (
           <TouchableOpacity
             key={book.id}
@@ -114,40 +113,40 @@ export default function BooksScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1646' },
+  gradientBackground: {
+    flex: 1,
+  },
   header: {
-    width: '100%',
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 36,
+    paddingBottom: 10,
+    paddingHorizontal: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    marginBottom: 10,
-    overflow: 'hidden',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    backgroundColor: 'transparent',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    letterSpacing: 1,
-    zIndex: 1,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    marginTop: 8,
-    zIndex: 1,
+    marginTop: 2,
   },
-  scroll: { alignItems: 'center', paddingVertical: 24, paddingBottom: 40 },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
+    alignItems: 'center',
+  },
   description: {
     fontSize: 16,
     color: '#ddd',

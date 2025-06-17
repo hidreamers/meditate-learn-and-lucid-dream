@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Switch, StyleSheet, Alert, ScrollView, Image, Modal, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Switch, StyleSheet, Alert, ScrollView, Image, Modal, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -33,6 +33,7 @@ export default function TabIndex() {
   const [journalOn, setJournalOn] = useState(false);
   const [screenSaverVisible, setScreenSaverVisible] = useState(false);
   const [showGettingStarted, setShowGettingStarted] = useState(false);
+  const [showTapNavigation, setShowTapNavigation] = useState(false);
 
   // NEW: Sound toggles
   const [nightSoundOn, setNightSoundOn] = useState(true);
@@ -287,196 +288,189 @@ export default function TabIndex() {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#f8f9fa' }}>
-      {/* Gradient Header */}
-      <LinearGradient
-        colors={['#3a1c71', '#d76d77', '#ffaf7b']}
-        style={styles.header}
-      >
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
+      {/* Header at the top, outside ScrollView */}
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Lucid Dreaming Assistant</Text>
         <Text style={styles.headerSubtitle}>Your guide to conscious dreaming</Text>
-      </LinearGradient>
-
-      {/* Getting Started Dropdown */}
-      <View style={{ padding: 12 }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#3a1c71',
-            borderRadius: 8,
-            padding: 10,
-            alignItems: 'center',
-            marginBottom: 8,
-          }}
-          onPress={() => setShowGettingStarted(!showGettingStarted)}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-            {showGettingStarted ? 'Hide Getting Started' : 'Show Getting Started'}
-          </Text>
-        </TouchableOpacity>
-        {showGettingStarted && (
-          <View style={{
-            backgroundColor: '#fff',
-            borderRadius: 10,
-            padding: 14,
-            marginBottom: 10,
-            elevation: 2,
-          }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 6, color: '#3a1c71' }}>
-              Getting Started
-            </Text>
-            <Text style={{ fontSize: 15, color: '#333', marginBottom: 6 }}>
-              Welcome to the Lucid Dreaming Assistant! Here’s how to use the app:
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-              1. Use the toggles on each card to set reminders for Night Practice, Day Practice, Meditation, and Dream Journal. These reminders help you build habits for lucid dreaming.
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-              2. When a reminder goes off, follow the prompt to perform a reality check, meditate, or journal your dreams.
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-              3. Use the navigation dropdown to explore reality checks, meditations, recommended books, instructions, and more.
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-              4. Write down your dreams in the Dream Journal to track your progress and increase dream recall.
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-              5. <Text style={{ fontWeight: 'bold', color: '#3a1c71' }}>Screensaver:</Text> Tap "Activate Screensaver" for a relaxing visual break. While the screensaver is active, your device’s screen will stay on and will not automatically turn off or lock. This is helpful if you want to keep calming visuals on as you relax, meditate, or prepare for sleep, without worrying about your phone going to sleep or the display turning off. You can exit the screensaver at any time by tapping the screen or using the exit button.
-            </Text>
-            <Text style={{ fontSize: 14, color: '#555' }}>
-              Enjoy your journey to more conscious and vivid dreaming!
-            </Text>
-          </View>
-        )}
       </View>
 
-      {/* First image below the header */}
-      <Image
-        source={{ uri: 'https://www.hidreamers.com/wp-content/uploads/2025/05/ChatGPT-Image-May-6-2025-12_39_55-PM.png' }}
-        style={styles.largeImage}
-        resizeMode="contain"
-      />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Getting Started Dropdown */}
+        <View style={{ padding: 12 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#3a1c71',
+              borderRadius: 8,
+              padding: 10,
+              alignItems: 'center',
+              marginBottom: 8,
+            }}
+            onPress={() => setShowGettingStarted(!showGettingStarted)}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+              {showGettingStarted ? 'Hide Getting Started' : 'Show Getting Started'}
+            </Text>
+          </TouchableOpacity>
+          {showGettingStarted && (
+            <View style={{
+              backgroundColor: '#fff',
+              borderRadius: 10,
+              padding: 14,
+              marginBottom: 10,
+              elevation: 2,
+            }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 6, color: '#3a1c71' }}>
+                Getting Started
+              </Text>
+              <Text style={{ fontSize: 15, color: '#333', marginBottom: 6 }}>
+                Welcome to the Lucid Dreaming Assistant! Here’s how to use the app:
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
+                1. Use the toggles on each card to set reminders for Night Practice, Day Practice, Meditation, and Dream Journal. These reminders help you build habits for lucid dreaming.
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
+                2. When a reminder goes off, follow the prompt to perform a reality check, meditate, or journal your dreams.
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
+                3. Use the navigation dropdown to explore reality checks, meditations, recommended books, instructions, and more.
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
+                4. Write down your dreams in the Dream Journal to track your progress and increase dream recall.
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
+                5. <Text style={{ fontWeight: 'bold', color: '#3a1c71' }}>Screensaver:</Text> Tap "Activate Screensaver" for a relaxing visual break. While the screensaver is active, your device’s screen will stay on and will not automatically turn off or lock. This is helpful if you want to keep calming visuals on as you relax, meditate, or prepare for sleep, without worrying about your phone going to sleep or the display turning off. You can exit the screensaver at any time by tapping the screen or using the exit button.
+              </Text>
+              <Text style={{ fontSize: 14, color: '#555' }}>
+                Enjoy your journey to more conscious and vivid dreaming!
+              </Text>
+            </View>
+          )}
+        </View>
 
-      {/* Dropdown Navigation */}
-      <View style={styles.dropdownContainer}>
+        {/* First image below the header */}
+        <Image
+          source={{ uri: 'https://www.hidreamers.com/wp-content/uploads/2025/05/ChatGPT-Image-May-6-2025-12_39_55-PM.png' }}
+          style={styles.largeImage}
+          resizeMode="contain"
+        />
+
+        {/* Dropdown Navigation */}
+        <View style={styles.dropdownContainer}>
+          <TouchableOpacity
+            style={styles.dropdownToggle}
+            onPress={() => setShowDropdown(!showDropdown)}
+          >
+            <Text style={styles.dropdownToggleText}>
+              {showDropdown ? 'Hide Tab Navigation' : 'Show Tab Navigation'}
+            </Text>
+          </TouchableOpacity>
+          {showDropdown && (
+            <View style={styles.dropdownContent}>
+              {TABS.map(tab => (
+                <View key={tab.route} style={styles.dropdownItem}>
+                  <Text style={styles.tabName}>{tab.name}</Text>
+                  <Text style={styles.tabDesc}>{tab.description}</Text>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => router.push(tab.route)}
+                  >
+                    <Text style={styles.buttonText}>Go to {tab.name}</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Nicer Cards with Functionality */}
+        <View style={styles.cardContainer}>
+          <DreamCard
+            icon="moon"
+            iconColor="#3a1c71"
+            title="Night Dream Practice"
+            description="Set reminders to do night dream practices."
+            showSound={true}
+            reminderValue={nightPracticeOn}
+            onReminderChange={toggleNightPractice}
+            soundValue={nightSoundOn}
+            onSoundChange={setNightSoundOn}
+            countdown={formatCountdown(nightCountdown)}
+          />
+          <DreamCard
+            icon="sunny"
+            iconColor="#d76d77"
+            title="Day Practice"
+            description="Set reminders to do day reality checks."
+            showSound={true}
+            reminderValue={dayPracticeOn}
+            onReminderChange={setDayPracticeOn}
+            soundValue={daySoundOn}
+            onSoundChange={setDaySoundOn}
+            countdown={formatCountdown(dayCountdown)}
+          />
+          <DreamCard
+            icon="leaf"
+            iconColor="#b0b8ff"
+            title="Meditation"
+            description="Set reminders to meditate and reflect."
+            showSound={false}
+            reminderValue={meditationOn}
+            onReminderChange={setMeditationOn}
+            countdown={formatCountdown(meditationCountdown)}
+          />
+          <DreamCard
+            icon="book"
+            iconColor="#b06ab3"
+            title="Dream Journal"
+            description="Write, view, and analyze your dreams."
+            showSound={false}
+            reminderValue={journalOn}
+            onReminderChange={setJournalOn}
+            countdown={formatCountdown(journalCountdown)}
+          />
+        </View>
+
+        {/* Screensaver Button */}
         <TouchableOpacity
-          style={styles.dropdownToggle}
-          onPress={() => setShowDropdown(!showDropdown)}
+          style={styles.screensaverButton}
+          onPress={() => setScreenSaverVisible(true)}
         >
-          <Text style={styles.dropdownToggleText}>
-            {showDropdown ? 'Hide Tab Navigation' : 'Show Tab Navigation'}
+          <Ionicons name="planet" size={22} color="#fff" style={{ marginRight: 8 }} />
+          <Text style={styles.screensaverButtonText}>Activate Screensaver</Text>
+        </TouchableOpacity>
+
+        {/* Tap Navigation Button */}
+        <TouchableOpacity onPress={() => setShowTapNavigation(!showTapNavigation)}>
+          <Text style={{ color: '#3a1c71', fontWeight: 'bold', fontSize: 16, textAlign: 'center', marginTop: 12 }}>
+            {showTapNavigation ? 'Hide Navigation' : 'Show Navigation'}
           </Text>
         </TouchableOpacity>
-        {showDropdown && (
-          <View style={styles.dropdownContent}>
-            {TABS.map(tab => (
-              <View key={tab.route} style={styles.dropdownItem}>
-                <Text style={styles.tabName}>{tab.name}</Text>
-                <Text style={styles.tabDesc}>{tab.description}</Text>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => router.push(tab.route)}
-                >
-                  <Text style={styles.buttonText}>Go to {tab.name}</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
 
-      {/* Nicer Cards with Functionality */}
-      <LinearGradient colors={['#e0c3fc', '#8ec5fc']} style={styles.nicerCard}>
-        <Ionicons name="moon" size={36} color="#3a1c71" style={{ marginBottom: 8 }} />
-        <Text style={styles.cardTitle}>Night Dream Practice</Text>
-        <Text style={styles.cardText}>Set reminders to do night dream practices.</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Reminders</Text>
-          <Switch value={nightPracticeOn} onValueChange={toggleNightPractice} />
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Sound</Text>
-          <Switch value={nightSoundOn} onValueChange={setNightSoundOn} />
-        </View>
-        <Text style={styles.countdown}>
-          Next Reminder: {formatCountdown(nightCountdown)}
-        </Text>
-      </LinearGradient>
-
-      <LinearGradient colors={['#fbc2eb', '#a6c1ee']} style={styles.nicerCard}>
-        <Ionicons name="sunny" size={36} color="#d76d77" style={{ marginBottom: 8 }} />
-        <Text style={styles.cardTitle}>Day Practice</Text>
-        <Text style={styles.cardText}>Set reminders to do day reality checks.</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Reminders</Text>
-          <Switch value={dayPracticeOn} onValueChange={setDayPracticeOn} />
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Sound</Text>
-          <Switch value={daySoundOn} onValueChange={setDaySoundOn} />
-        </View>
-        <Text style={styles.countdown}>
-          Next Reminder: {formatCountdown(dayCountdown)}
-        </Text>
-      </LinearGradient>
-
-      <LinearGradient colors={['#f9d423', '#ff4e50']} style={styles.nicerCard}>
-        <Ionicons name="leaf" size={36} color="#ffaf7b" style={{ marginBottom: 8 }} />
-        <Text style={styles.cardTitle}>Meditation</Text>
-        <Text style={styles.cardText}>Set reminders to meditate and reflect.</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Reminders</Text>
-          <Switch value={meditationOn} onValueChange={setMeditationOn} />
-        </View>
-        <Text style={styles.countdown}>
-          Next Reminder: {formatCountdown(meditationCountdown)}
-        </Text>
-      </LinearGradient>
-
-      <LinearGradient colors={['#fbc2eb', '#a6c1ee']} style={styles.nicerCard}>
-        <Ionicons name="book" size={36} color="#b06ab3" style={{ marginBottom: 8 }} />
-        <Text style={styles.cardTitle}>Dream Journal</Text>
-        <Text style={styles.cardText}>Write, view, and analyze your dreams.</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Reminders</Text>
-          <Switch value={journalOn} onValueChange={setJournalOn} />
-        </View>
-        <Text style={styles.countdown}>
-          Next Reminder: {formatCountdown(journalCountdown)}
-        </Text>
-      </LinearGradient>
-
-      {/* Screensaver Button */}
-      <TouchableOpacity
-        style={styles.screensaverButton}
-        onPress={() => setScreenSaverVisible(true)}
-      >
-        <Ionicons name="planet" size={22} color="#fff" style={{ marginRight: 8 }} />
-        <Text style={styles.screensaverButtonText}>Activate Screensaver</Text>
-      </TouchableOpacity>
-
-      {/* Bottom image */}
-      <Image
-        source={{ uri: 'https://www.hidreamers.com/wp-content/uploads/2025/05/ChatGPT-Image-May-6-2025-12_36_43-PM.png' }}
-        style={styles.largeImageBottom}
-        resizeMode="contain"
-      />
-
-      {/* Screen Saver Modal */}
-      <Modal visible={screenSaverVisible} animationType="fade" transparent={false}>
-        <ScreenSaver onExit={() => setScreenSaverVisible(false)} />
-      </Modal>
-    </ScrollView>
+        {/* Screen Saver Modal */}
+        <Modal visible={screenSaverVisible} animationType="fade" transparent={false}>
+          <ScreenSaver onExit={() => setScreenSaverVisible(false)} />
+        </Modal>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   header: {
-    paddingTop: 36,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 36, // 36 for iOS, status bar height for Android
     paddingBottom: 16,
     paddingHorizontal: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   headerTitle: {
     fontSize: 28,
@@ -490,12 +484,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 2,
   },
+  scrollContent: {
+    paddingTop: 0, // No need for extra padding since header is outside
+    flexGrow: 1,
+  },
   largeImage: {
-    width: '100%',
-    height: 400,
-    marginVertical: 8,
+    width: 300,      // or your preferred width
+    height: 300,     // your preferred height
+    borderRadius: 50, // optional, for a circle
+    marginTop: 24,
+    marginBottom: 16,
     alignSelf: 'center',
-    borderRadius: 14,
   },
   largeImageBottom: {
     width: '100%',
@@ -553,10 +552,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
+  cardContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
   nicerCard: {
-    borderRadius: 20,
-    marginVertical: 8,
-    marginHorizontal: 8,
+    width: 250,
+    height: 350,
+    borderRadius: 24,
+    margin: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
@@ -564,7 +570,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     padding: 24,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   cardTitle: {
     fontSize: 20,
@@ -611,5 +618,101 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  meditationCard: {
+    backgroundColor: '#23243a', // or another dark/soft color
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  container: {
+    alignItems: 'center',
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+  gettingStartedButton: {
+    backgroundColor: '#3a1c71',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 18,
+    marginBottom: 8,
+    alignItems: 'center',
+    width: 320,
+  },
+  gettingStartedButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  gettingStartedCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+    elevation: 2,
+    width: 320,
+  },
+  gettingStartedTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#3a1c71',
+  },
+  gettingStartedText: {
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 6,
+  },
+  gettingStartedSection: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 4,
+  },
+  bold: {
+    fontWeight: 'bold',
+    color: '#3a1c71',
+  },
+  centeredCard: {
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 24,
+    width: '100%',
+  },
+  mildCard: {
+    width: 320,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    alignItems: 'center',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    flexDirection: 'row',
+  },
+  mildCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#3a1c71',
+    marginBottom: 4,
+  },
+  mildCardDesc: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 8,
+  },
+  mildCardButton: {
+    backgroundColor: '#d76d77',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'flex-start',
   },
 });

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import AppNavigator from './app/navigation/AppNavigator';
-import { registerForPushNotificationsAsync } from './app/utils/notifications';
+import { registerForPushNotificationsAsync } from './notifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,14 +15,7 @@ Notifications.setNotificationHandler({
 export default function App() {
   const [expoPushToken, setExpoPushToken] = useState('');
 
-  useEffect(() => {
-    registerForPushNotificationsAsync().then(token => {
-      setExpoPushToken(token);
-      if (token) {
-        Alert.alert('Expo Push Token', token);
-      }
-    });
-  }, []);
+ 
 
   return (
     <View style={{ flex: 1 }}>

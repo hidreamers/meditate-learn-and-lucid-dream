@@ -11,6 +11,8 @@ import {
   Animated,
   Easing,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -302,7 +304,7 @@ Whether you're seeking guidance, inner peace, or a deeper connection to your pur
 
 const { width } = Dimensions.get('window');
 
-export default function Meditation() {
+export default function Meditation(props) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -449,13 +451,14 @@ export default function Meditation() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#3a1c71', '#d76d77', '#ffaf7b']} style={styles.header}>
-        <Text style={styles.headerTitle}>Meditations</Text>
-        <Text style={styles.headerSubtitle}>
-          Enhance your lucid dreaming journey with these guided meditations.
-        </Text>
-      </LinearGradient>
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Meditation</Text>
+        <Text style={styles.headerSubtitle}>Guided meditations for lucid dreaming and wellness</Text>
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {meditationCategories.map((category, catIdx) => (
           <View key={category.category}>
@@ -651,33 +654,37 @@ export default function Meditation() {
           </View>
         </View>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  gradientBackground: {
+    flex: 1,
+  },
   header: {
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 36,
+    paddingBottom: 10,
+    paddingHorizontal: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    marginBottom: 10,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    letterSpacing: 1,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 2,
   },
+  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  // ... rest of your existing styles
   scrollContent: {
     padding: 20,
     paddingBottom: 40,

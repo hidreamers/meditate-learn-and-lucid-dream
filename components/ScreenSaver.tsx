@@ -1,190 +1,197 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Appearance } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
-import { useKeepAwake } from 'expo-keep-awake';
 
 const { width, height } = Dimensions.get('window');
 
-// Generate random stars and planets
-const generateStars = (count = 60) =>
-  Array.from({ length: count }).map((_, i) => ({
-    key: i,
-    left: Math.random() * width,
-    top: Math.random() * height,
-    size: Math.random() * 2.5 + 1,
-    opacity: Math.random() * 0.7 + 0.3,
-    color: Math.random() > 0.97 ? '#ffaf7b' : '#fff',
-  }));
+const TWINKLE_STAR_COUNT = 80;
 
-const planets = [
-  { size: 36, left: width * 0.15, top: height * 0.18, color: '#d76d77' },
-  { size: 22, left: width * 0.7, top: height * 0.25, color: '#3a1c71' },
-  { size: 28, left: width * 0.8, top: height * 0.7, color: '#ffaf7b' },
+const FLOATING_WORDS = [
+  'IS THIS A DREAM',
+  'AM I DREAMING',
+  'AM I AWAKE',
+  'I WILL REMEMBER MY DREAMS',
+  'THE NEXT TIME IM DREAMING I WILL WAKE UP IN MY DREAM',
 ];
 
-export default function ScreenSaver({ onExit }: { onExit: () => void }) {
-  const [time, setTime] = useState(new Date());
-  const [stars, setStars] = useState(generateStars());
-  const [fadeAnim] = useState(new Animated.Value(0.7));
-  const colorScheme = Appearance.getColorScheme();
+function getRandomTwinkleStar() {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    r: 1.2 + Math.random() * 1.8,
+    opacity: 0.8 + Math.random() * 0.2,
+  };
+}
 
-  useKeepAwake();
+function getRandomWordState(word: string) {
+  return {
+    word,
+    x: Math.random() * (width - 180),
+    y: Math.random() * (height - 40),
+    dx: (Math.random() - 0.5) * 1.2,
+    dy: (Math.random() - 0.5) * 1.2,
+    w: 180,
+    h: 40,
+  };
+}
 
+// Helper to check if two words overlap (bounding box collision)
+function isColliding(a: any, b: any) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  );
+}
+
+export default function ScreenSaver({ onExit }: { onExit?: () => void }) {
+  const [twinkleStars, setTwinkleStars] = useState(() =>
+    Array.from({ length: TWINKLE_STAR_COUNT }, getRandomTwinkleStar)
+  );
+  const [floatingWords, setFloatingWords] = useState(() =>
+    FLOATING_WORDS.map(getRandomWordState)
+  );
+
+  // Animate floating words and twinkle stars
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-        Animated.timing(fadeAnim, { toValue: 0.7, duration: 2000, useNativeDriver: true }),
-      ])
-    ).start();
-    return () => clearInterval(timer);
+    const interval = setInterval(() => {
+      setFloatingWords(prev => {
+        // Move all words
+        let next = prev.map(w => {
+          let nx = w.x + w.dx;
+          let ny = w.y + w.dy;
+          let ndx = w.dx;
+          let ndy = w.dy;
+          if (nx < 0 || nx > width - w.w) ndx *= -1;
+          if (ny < 0 || ny > height - w.h) ndy *= -1;
+          return { ...w, x: nx, y: ny, dx: ndx, dy: ndy };
+        });
+
+        // Improved collision: push apart by minimum overlap
+        for (let i = 0; i < next.length; i++) {
+          for (let j = i + 1; j < next.length; j++) {
+            if (isColliding(next[i], next[j])) {
+              // Calculate overlap in x and y
+              const dx = (next[i].x + next[i].w / 2) - (next[j].x + next[j].w / 2);
+              const dy = (next[i].y + next[i].h / 2) - (next[j].y + next[j].h / 2);
+              const overlapX = next[i].w / 2 + next[j].w / 2 - Math.abs(dx);
+              const overlapY = next[i].h / 2 + next[j].h / 2 - Math.abs(dy);
+
+              // Push apart along the axis of least overlap
+              if (overlapX < overlapY) {
+                const push = overlapX / 2 + 1;
+                next[i].x += dx > 0 ? push : -push;
+                next[j].x -= dx > 0 ? push : -push;
+                next[i].dx *= -1;
+                next[j].dx *= -1;
+              } else {
+                const push = overlapY / 2 + 1;
+                next[i].y += dy > 0 ? push : -push;
+                next[j].y -= dy > 0 ? push : -push;
+                next[i].dy *= -1;
+                next[j].dy *= -1;
+              }
+            }
+          }
+        }
+        return next;
+      });
+
+      setTwinkleStars(prev =>
+        prev.map(s => ({
+          ...s,
+          opacity: 0.8 + Math.random() * 0.2,
+        }))
+      );
+    }, 30);
+    return () => clearInterval(interval);
   }, []);
-
-  // Animate stars (twinkle)
-  useEffect(() => {
-    const twinkle = setInterval(() => setStars(generateStars()), 3500);
-    return () => clearInterval(twinkle);
-  }, []);
-
-  const timeString = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-  // Choose gradient based on mode
-  const gradientColors =
-    colorScheme === 'dark'
-      ? ['#0a043c', '#1a1646', '#3a1c71', '#22223b']
-      : ['#3a1c71', '#d76d77', '#ffaf7b', '#fff'];
 
   return (
-    <View style={{ flex: 1 }}>
-      <LinearGradient
-        colors={gradientColors}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0.2, y: 0.1 }}
-        end={{ x: 0.8, y: 1 }}
+    <View style={styles.container}>
+      {/* Exit Button */}
+      <TouchableOpacity style={styles.exitButton} onPress={onExit}>
+        <Ionicons name="close-circle" size={32} color="#b0b8ff" />
+      </TouchableOpacity>
+      {/* Stretched constellation image as background */}
+      <Image
+        source={require('../assets/images/taurus.png')}
+        style={styles.constellationImage}
+        resizeMode="stretch"
       />
-      {/* Planets */}
-      {planets.map((p, i) => (
-        <Animated.View
+      <Svg height={height} width={width} style={StyleSheet.absoluteFill}>
+        {/* Brighter, twinkling background stars */}
+        {twinkleStars.map((s, i) => (
+          <Circle
+            key={'twinkle-star' + i}
+            cx={s.x}
+            cy={s.y}
+            r={s.r}
+            fill="#fff"
+            opacity={s.opacity}
+          />
+        ))}
+      </Svg>
+      {floatingWords.map((w, i) => (
+        <View
           key={i}
-          style={{
-            position: 'absolute',
-            left: p.left,
-            top: p.top,
-            width: p.size,
-            height: p.size,
-            borderRadius: p.size / 2,
-            backgroundColor: p.color,
-            opacity: 0.18,
-            zIndex: 1,
-          }}
-        />
-      ))}
-      {/* Floating stars */}
-      {stars.map(star => (
-        <Animated.View
-          key={star.key}
-          style={{
-            position: 'absolute',
-            left: star.left,
-            top: star.top,
-            width: star.size,
-            height: star.size,
-            borderRadius: star.size / 2,
-            backgroundColor: star.color,
-            opacity: star.opacity,
-            zIndex: 2,
-          }}
-        />
-      ))}
-      {/* Glowing, smaller clock */}
-      <View style={styles.centered}>
-        <Animated.Text
           style={[
-            styles.clock,
-            {
-              textShadowColor: '#fff',
-              textShadowOffset: { width: 0, height: 0 },
-              textShadowRadius: 18,
-              opacity: fadeAnim,
-            },
+            styles.textContainer,
+            { left: w.x, top: w.y, position: 'absolute', maxWidth: 180 }
           ]}
         >
-          {timeString}
-        </Animated.Text>
-        <Text style={styles.slogan}>Dream Beyond the Stars</Text>
-        <Ionicons name="planet" size={64} color="#ffaf7b" style={styles.planetIcon} />
-        <Text style={styles.subtext}>
-          {colorScheme === 'dark'
-            ? 'Night Mode: Your cosmic journey awaits...'
-            : 'Day Mode: Explore the universe of your mind.'}
-        </Text>
-      </View>
-      {/* Exit button */}
-      <TouchableOpacity style={styles.exitButton} onPress={onExit} activeOpacity={0.8}>
-        <Ionicons name="close-circle" size={44} color="#fff" style={{ textShadowColor: '#3a1c71', textShadowRadius: 10 }} />
-        <Text style={styles.exitText}>Exit</Text>
-      </TouchableOpacity>
+          <Text style={styles.text}>{w.word}</Text>
+        </View>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  clock: {
-    fontSize: 38,
-    color: '#fff',
-    fontWeight: 'bold',
-    letterSpacing: 2,
-    marginBottom: 12,
-    marginTop: 10,
-  },
-  slogan: {
-    fontSize: 26,
-    color: '#fff',
-    fontStyle: 'italic',
-    textShadowColor: '#3a1c71',
-    textShadowRadius: 10,
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  planetIcon: {
-    marginTop: 10,
-    marginBottom: 10,
-    textShadowColor: '#ffaf7b',
-    textShadowRadius: 12,
-  },
-  subtext: {
-    color: '#d1c4e9',
-    fontSize: 16,
-    marginTop: 6,
-    textAlign: 'center',
-    fontStyle: 'italic',
+  container: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#05051a',
+    zIndex: 999,
   },
   exitButton: {
     position: 'absolute',
-    bottom: 48,
-    alignSelf: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(58,28,113,0.7)',
-    borderRadius: 30,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    flexDirection: 'row',
-    zIndex: 20,
+    top: 36,
+    right: 24,
+    zIndex: 10,
+    backgroundColor: 'rgba(20,20,40,0.7)',
+    borderRadius: 20,
+    padding: 2,
   },
-  exitText: {
-    color: '#fff',
+  constellationImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0.18,
+    zIndex: 0,
+  },
+  textContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: 'rgba(20,20,40,0.7)',
+    borderWidth: 1,
+    borderColor: '#181828',
+    alignItems: 'center',
+    maxWidth: 180,
+  },
+  text: {
+    color: '#b0b8ff',
+    fontSize: 15,
     fontWeight: 'bold',
-    fontSize: 18,
-    marginLeft: 10,
-    textShadowColor: '#3a1c71',
-    textShadowRadius: 8,
+    textShadowColor: '#181828',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+    letterSpacing: 1,
+    textAlign: 'center',
   },
 });

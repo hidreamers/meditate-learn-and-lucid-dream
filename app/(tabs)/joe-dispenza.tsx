@@ -1,17 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
+  Text,
+  StyleSheet,
   ScrollView,
+  TouchableOpacity,
   Image,
   Modal,
-  Animated,
   Dimensions,
+  Animated,
+  Easing,
+  ActivityIndicator,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import * as Linking from 'expo-linking';
+// If using Expo, install expo-file-system and expo-web-browser for PDF viewing
+import * as WebBrowser from 'expo-web-browser';
+import { Audio } from 'expo-av';
+import { WebView } from 'react-native-webview';
 
 const joeTracks = [
   {
@@ -163,6 +173,9 @@ function getYouTubeId(url: string) {
   return fallback ? fallback[1] : '';
 }
 
+const CARD_WIDTH = 320;
+const VIDEO_URL = 'https://www.youtube.com/embed/YOUR_VIDEO_ID'; // Replace with your actual video ID
+
 export default function JoeDispenzaScreen() {
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -232,100 +245,142 @@ export default function JoeDispenzaScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <Ionicons name="musical-notes-outline" size={64} color="#3a1c71" />
-        <Text style={styles.header}>Joe Dispenza Meditations</Text>
-      </View>
-      <Text style={styles.text}>
-        Explore a curated collection of Joe Dispenza meditations and resources to help you on your journey.
-      </Text>
-      {joeTracks.map(track => (
-        <TouchableOpacity
-          key={track.id}
-          style={styles.trackCard}
-          onPress={() => handleSelectTrack(track)}
-        >
-          <Image source={{ uri: track.image }} style={styles.trackImage} />
-          <View style={styles.trackInfo}>
-            <Text style={styles.trackTitle}>{track.title}</Text>
-          </View>
-          <Ionicons name="play-circle" size={36} color="#3a1c71" style={styles.playIcon} />
-        </TouchableOpacity>
-      ))}
-
-      {/* Video Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={handleCloseModal}
-            >
-              <Ionicons name="close" size={24} color="#fff" />
-            </TouchableOpacity>
-            {selectedTrack && (
-              <View style={styles.playerContainer}>
-                <View style={styles.visualizerContainer}>
-                  <Animated.View
-                    style={[
-                      styles.breatheCircle,
-                      {
-                        transform: [{ scale: breatheScale }],
-                      },
-                    ]}
-                  />
-                  <Animated.Image
-                    source={{ uri: selectedTrack.image }}
-                    style={[
-                      styles.playerImage,
-                      {
-                        transform: [{ rotate: spin }],
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.playerTitle}>{selectedTrack.title}</Text>
-                <View style={{ width: width - 40, aspectRatio: 16 / 9, marginBottom: 20 }}>
-                  <YoutubePlayer
-                    height={220}
-                    play={isPlaying}
-                    videoId={getYouTubeId(selectedTrack.videoUrl)}
-                    onChangeState={event => {
-                      if (event === 'ended') setIsPlaying(false);
-                    }}
-                  />
-                </View>
-                <View style={styles.meditationTips}>
-                  <Text style={styles.tipsTitle}>Meditation Tips</Text>
-                  <Text style={styles.tipText}>• Find a quiet, comfortable place</Text>
-                  <Text style={styles.tipText}>• Focus on your breathing</Text>
-                  <Text style={styles.tipText}>• Let thoughts come and go without judgment</Text>
-                  <Text style={styles.tipText}>• If your mind wanders, gently bring it back</Text>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
-      <View style={{ padding: 16, alignItems: 'center' }}>
-        <Text style={{ color: '#aaa', fontSize: 12, textAlign: 'center' }}>
-          Disclaimer: All YouTube videos embedded in this app are publicly available and streamed directly from YouTube.
-          We do not own or claim any rights to these videos. All content belongs to the original creators and is subject to YouTube’s Terms of Service.
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
+      {/* Sticky header outside ScrollView */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Joe Dispenza Meditations</Text>
+        <Text style={styles.headerSubtitle}>
+          Explore a curated collection of Joe Dispenza meditations and resources to help you on your journey.
         </Text>
       </View>
-    </ScrollView>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <Ionicons name="musical-notes-outline" size={64} color="#3a1c71" />
+          <Text style={styles.header}></Text>
+        </View>
+        
+        {joeTracks.map(track => (
+          <TouchableOpacity
+            key={track.id}
+            style={styles.trackCard}
+            onPress={() => handleSelectTrack(track)}
+          >
+            <Image source={{ uri: track.image }} style={styles.trackImage} />
+            <View style={styles.trackInfo}>
+              <Text style={styles.trackTitle}>{track.title}</Text>
+            </View>
+            <Ionicons name="play-circle" size={36} color="#3a1c71" style={styles.playIcon} />
+          </TouchableOpacity>
+        ))}
+
+        {/* Video Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={handleCloseModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={handleCloseModal}
+              >
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+              {selectedTrack && (
+                <View style={styles.playerContainer}>
+                  <View style={styles.visualizerContainer}>
+                    <Animated.View
+                      style={[
+                        styles.breatheCircle,
+                        {
+                          transform: [{ scale: breatheScale }],
+                        },
+                      ]}
+                    />
+                    <Animated.Image
+                      source={{ uri: selectedTrack.image }}
+                      style={[
+                        styles.playerImage,
+                        {
+                          transform: [{ rotate: spin }],
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.playerTitle}>{selectedTrack.title}</Text>
+                  <View style={{ width: width - 40, aspectRatio: 16 / 9, marginBottom: 20 }}>
+                    <YoutubePlayer
+                      height={220}
+                      play={isPlaying}
+                      videoId={getYouTubeId(selectedTrack.videoUrl)}
+                      onChangeState={event => {
+                        if (event === 'ended') setIsPlaying(false);
+                      }}
+                    />
+                  </View>
+                  <View style={styles.meditationTips}>
+                    <Text style={styles.tipsTitle}>Meditation Tips</Text>
+                    <Text style={styles.tipText}>• Find a quiet, comfortable place</Text>
+                    <Text style={styles.tipText}>• Focus on your breathing</Text>
+                    <Text style={styles.tipText}>• Let thoughts come and go without judgment</Text>
+                    <Text style={styles.tipText}>• If your mind wanders, gently bring it back</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
+        <View style={{ padding: 16, alignItems: 'center' }}>
+          <Text style={{ color: '#aaa', fontSize: 12, textAlign: 'center' }}>
+            Disclaimer: All YouTube videos embedded in this app are publicly available and streamed directly from YouTube.
+            We do not own or claim any rights to these videos. All content belongs to the original creators and is subject to YouTube’s Terms of Service.
+          </Text>
+        </View>
+
+       
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 36,
+    paddingBottom: 10,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 10,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
+    alignItems: 'center',
+  },
   container: { padding: 24, backgroundColor: '#1a1646', flexGrow: 1 },
-  header: { fontSize: 28, fontWeight: 'bold', color: '#fff', marginTop: 10, marginBottom: 10 },
   text: { color: '#fff', fontSize: 16, marginBottom: 10 },
   trackCard: {
     flexDirection: 'row',
@@ -419,5 +474,61 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 6,
+  },
+  videoCard: {
+    width: CARD_WIDTH,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 16,
+    marginTop: 24,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  videoContainer: {
+    width: CARD_WIDTH - 20,
+    height: ((CARD_WIDTH - 20) * 9) / 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  webview: {
+    flex: 1,
+    borderRadius: 12,
+  },
+  videoText: {
+    color: '#111',
+    fontSize: 15,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    marginBottom: 18,
+    alignItems: 'center',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#b06ab3', // purplish
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    color: '#b06ab3', // purplish
+    marginBottom: 8,
+    textAlign: 'justify',
   },
 });

@@ -1,21 +1,116 @@
-Deep Healing Meditation: Didgeridoo, Theta Waves & 61 Points of Relaxation
-https://youtu.be/U-OoFVeq16I?si=rAQQjaIKhhTH3P7v
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-61_Point_Relxation
-https://youtu.be/4-yWJrL1Wyc?si=8wemevCjfWowUVdf
+export default function Page() {
+  return (
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Meditation Resources</Text>
+        <Text style={styles.headerSubtitle}>Curated for Deep Relaxation</Text>
+      </View>
 
-Open Your Heart
-https://youtu.be/q8xrwOck07Q?si=mXBkqjvKta83JCIG
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Page content goes here */}
+        <View style={styles.pageContent}>
+          <Text style={styles.sectionTitle}>Video and Audio Links</Text>
+          <Text style={styles.linkItem}>
+            Deep Healing Meditation: Didgeridoo, Theta Waves & 61 Points of Relaxation
+            {'\n'}
+            <Text style={styles.link}>
+              https://youtu.be/U-OoFVeq16I?si=rAQQjaIKhhTH3P7v
+            </Text>
+          </Text>
+          <Text style={styles.linkItem}>
+            61_Point_Relxation
+            {'\n'}
+            <Text style={styles.link}>
+              https://youtu.be/4-yWJrL1Wyc?si=8wemevCjfWowUVdf
+            </Text>
+          </Text>
+          <Text style={styles.linkItem}>
+            Open Your Heart
+            {'\n'}
+            <Text style={styles.link}>
+              https://youtu.be/q8xrwOck07Q?si=mXBkqjvKta83JCIG
+            </Text>
+          </Text>
+          <Text style={styles.linkItem}>
+            I am Connected Meditation
+            {'\n'}
+            <Text style={styles.link}>
+              https://youtu.be/9JLsmoTqUSQ
+            </Text>
+          </Text>
+          <Text style={styles.linkItem}>
+            Lucid Dreaming Audio Meditation
+            {'\n'}
+            <Text style={styles.link}>
+              https://www.hidreamers.com/wp-content/uploads/2025/06/lucid_Dreaming.mp3
+            </Text>
+          </Text>
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
 
-I am Connected Meditation 
-🌌 I Am Connected – Theta Meditation & Higher Power Affirmation
-Description:
-“I Am Connected” is a powerful guided meditation designed to help you realign with your higher self and awaken your inner knowing. This practice blends deeply relaxing theta wave binaural beats with soul-activating affirmations to create a sacred space for spiritual connection, healing, and inner clarity.
+const HEADER_HEIGHT = 90; // Adjust if your header is taller/shorter
 
-As the binaural tones gently shift your brain into the theta state—the gateway to deep meditation, intuition, and spiritual insight—you’ll be guided to release resistance and tune in to the frequency of your higher power. The affirmations woven throughout the session act as energetic keys, opening channels to divine intelligence and reminding you that you are never alone.
-
-Whether you're seeking guidance, inner peace, or a deeper connection to your purpose, this meditation will help you feel grounded, aligned, and supported.
-https://youtu.be/9JLsmoTqUSQ
-
-Lucid Dreaming Audo Meditaion 
-https://www.hidreamers.com/wp-content/uploads/2025/06/lucid_Dreaming.mp3
+const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
+  header: {
+    height: HEADER_HEIGHT,
+    paddingTop: 36,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingTop: HEADER_HEIGHT, // So content starts below the header
+    paddingBottom: 24,
+  },
+  pageContent: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#3a1c71',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  linkItem: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 12,
+  },
+  link: {
+    color: '#3a1c71',
+    textDecorationLine: 'underline',
+  },
+});

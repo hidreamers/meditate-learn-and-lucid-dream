@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, Modal, ImageBackground } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, Modal, ImageBackground, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { removeStopWords } from '../../utils/stopWordFilter';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const STOP_WORDS = [
-  "a", "about", "above", "after", "again", "against", "ain", "all", "am", "an", "and", "any", "are", "aren", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "could", "couldn", "d", "did", "didn", "do", "does", "doesn", "doing", "don", "down", "during", "each", "few", "for", "from", "further", "had", "hadn", "has", "hasn", "have", "haven", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "isn", "it", "its", "itself", "just", "ll", "m", "ma", "me", "mightn", "more", "most", "mustn", "my", "myself", "needn", "no", "nor", "not", "now", "o", "of", "off", "on", "once", "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "re", "s", "same", "shan", "she", "should", "shouldn", "so", "some", "such", "t", "than", "that", "the", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn", "we", "were", "weren", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "won", "would", "wouldn", "y", "you", "your", "yours", "yourself", "yourselves", "ain’t", "aren’t", "can’t", "could’ve", "couldn’t", "didn’t", "doesn’t", "don’t", "hadn’t", "hasn’t", "haven’t", "he’d", "he’ll", "he’s", "how’d", "how’ll", "how’s", "i’d", "i’ll", "i’m", "i’ve", "isn’t", "it’d", "it’ll", "it’s", "let’s", "might’ve", "mightn’t", "must’ve", "mustn’t", "shan’t", "she’d", "she’ll", "she’s", "should’ve", "shouldn’t", "that’ll", "that’s", "there’s", "they’d", "they’ll", "they’re", "they’ve", "wasn’t", "we’d", "we’ll", "we’re", "we’ve", "weren’t", "what’d", "what’s", "when’d", "when’ll", "when’s", "where’d", "where’ll", "where’s", "who’d", "who’ll", "who’s", "why’d", "why’ll", "why’s", "won’t", "would’ve", "wouldn’t", "you’d", "you’ll", "you’re", "you’ve", "got", "went", "gone", "come", "comes", "came", "get", "gets", "getting", "doing", "done", "being", "want", "wants", "wanted", "like", "likes", "liked", "know", "knows", "knew", "known", "make", "makes", "made", "see", "saw", "seen", "use", "used", "using", "go", "goes", "going", "have", "had", "has", "do", "did", "does", "keep", "keeps", "kept", "let", "lets", "say", "says", "said", "think", "thinks", "thought", "try", "tries", "tried", "need", "needs", "needed", "look", "looks", "looked", "seem", "seems", "seemed", "give", "gives", "gave", "find", "finds", "found", "tell", "tells", "told", "ask", "asks", "asked", "work", "works", "worked", "feel", "feels", "felt", "call", "calls", "called"
+  "a", "about", "above", "after", "again", "against", "ain", "all", "am", "an", "and", "any", "are", "aren", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can", "could", "couldn", "d", "did", "didn", "do", "does", "doesn", "doing", "don", "down", "during", "each", "few", "for", "from", "further", "had", "hadn", "has", "hasn", "have", "haven", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "isn", "it", "its", "itself", "just", "ll", "m", "ma", "me", "mightn", "more", "most", "mustn", "my", "myself", "needn", "no", "nor", "not", "now", "o", "of", "off", "on", "once", "only", "or", "other", "our", "ours", "ourselves", "out", "over", "own", "re", "s", "same", "shan", "she", "should", "shouldn", "so", "some", "such", "t", "than", "that", "their", "theirs", "them", "themselves", "then", "there", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn", "we", "were", "weren", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "won", "would", "wouldn", "y", "you", "your", "yours", "yourself", "yourselves", "ain’t", "aren’t", "can’t", "could’ve", "couldn’t", "didn’t", "doesn’t", "don’t", "hadn’t", "hasn’t", "haven’t", "he’d", "he’ll", "he’s", "how’d", "how’ll", "how’s", "i’d", "i’ll", "i’m", "i’ve", "isn’t", "it’d", "it’ll", "it’s", "let’s", "might’ve", "mightn’t", "must’ve", "mustn’t", "shan’t", "she’d", "she’ll", "she’s", "should’ve", "shouldn’t", "that’ll", "that’s", "there’s", "they’d", "they’ll", "they’re", "they’ve", "wasn’t", "we’d", "we’ll", "we’re", "we’ve", "weren’t", "what’d", "what’s", "when’d", "when’ll", "when’s", "where’d", "where’ll", "where’s", "who’d", "who’ll", "who’s", "why’d", "why’ll", "why’s", "won’t", "would’ve", "wouldn’t", "you’d", "you’ll", "you’re", "you’ve", "got", "went", "gone", "come", "comes", "came", "get", "gets", "getting", "doing", "done", "being", "want", "wants", "wanted", "like", "likes", "liked", "know", "knows", "knew", "known", "make", "makes", "made", "see", "saw", "seen", "use", "used", "using", "go", "goes", "going", "have", "had", "has", "do", "did", "does", "keep", "keeps", "kept", "let", "lets", "say", "says", "said", "think", "thinks", "thought", "try", "tries", "tried", "need", "needs", "needed", "look", "looks", "looked", "seem", "seems", "seemed", "give", "gives", "gave", "find", "finds", "found", "tell", "tells", "told", "ask", "asks", "asked", "work", "works", "worked", "feel", "feels", "felt", "call", "calls", "called"
 ];
 
 const DREAMS_KEY = 'dreamEntries';
@@ -41,6 +41,7 @@ export default function DreamJournalScreen() {
   const [dreamSigns, setDreamSigns] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [dreamSignsModalVisible, setDreamSignsModalVisible] = useState(false);
 
   // Load dreams on mount
   useEffect(() => {
@@ -66,12 +67,6 @@ export default function DreamJournalScreen() {
     setDreamText('');
   };
 
-  // Analyze dreams for dream signs
-  const handleAnalyzeDreams = () => {
-    setDreamSigns(extractDreamSigns(dreamEntries));
-    Alert.alert('Dream Signs Updated', 'Recurring dream signs have been analyzed!');
-  };
-
   // Optional: Clear all dreams (for testing)
   const handleClearDreams = async () => {
     await AsyncStorage.removeItem(DREAMS_KEY);
@@ -92,12 +87,8 @@ export default function DreamJournalScreen() {
     setDreamSigns(extractDreamSigns(updatedDreams));
     setEditingId(null);
     setEditText('');
-  };// Example dream entry for testing removeStopWords
-  const dreamEntry = "I was flying over the city and it was amazing!";
-  const filteredText = removeStopWords(dreamEntry);
+  };
 
-
-  
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ImageBackground
@@ -105,86 +96,116 @@ export default function DreamJournalScreen() {
         style={{ flex: 1 }}
         blurRadius={2}
       >
-        <View style={[styles.container, { backgroundColor: 'rgba(26,22,70,0.85)' }]}>
-          <Text style={styles.header}>Dream Journal</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Write your dream here..."
-            placeholderTextColor="#d1c4e9"
-            value={dreamText}
-            onChangeText={setDreamText}
-            multiline
-          />
-          <TouchableOpacity style={styles.addButton} onPress={handleAddDream}>
-            <Text style={styles.addButtonText}>Add Dream</Text>
-          </TouchableOpacity>
+        <LinearGradient
+          colors={['#3a1c71', '#b993d6', '#fff']}
+          style={styles.gradientBackground}
+        >
+          <View style={[styles.container, { backgroundColor: 'rgba(26,22,70,0.85)' }]}>
+            <Text style={styles.header}>Dream Journal</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Write your dream here..."
+              placeholderTextColor="#d1c4e9"
+              value={dreamText}
+              onChangeText={setDreamText}
+              multiline
+            />
+            <TouchableOpacity style={styles.addButton} onPress={handleAddDream}>
+              <Text style={styles.addButtonText}>Add Dream</Text>
+            </TouchableOpacity>
 
-          <Text style={styles.sectionTitle}>Your Dreams</Text>
-          <FlatList
-            data={dreamEntries}
-            keyExtractor={(_, idx) => idx.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.entry} onPress={() => startEdit(item.date, item.text)}>
-                <Text style={styles.dreamText}>{item.text}</Text>
-                <Text style={styles.dreamDate}>{formatDate(item.date)}</Text>
-                <Text style={styles.editHint}>Tap to edit</Text>
-              </TouchableOpacity>
-            )}
-            ListEmptyComponent={<Text style={styles.empty}>No dreams yet. Start journaling!</Text>}
-            style={{ marginBottom: 10 }}
-          />
-
-          <TouchableOpacity style={styles.analyzeButton} onPress={handleAnalyzeDreams}>
-            <Text style={styles.analyzeButtonText}>Analyze My Dreams</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.sectionTitle}>Recurring Dream Signs</Text>
-          {dreamSigns.length > 0 ? (
-            dreamSigns.map(([sign, count], idx) => (
-              <Text key={idx} style={styles.dreamSign}>
-                {'\u2022'} {sign} <Text style={{ color: '#888' }}>({count})</Text>
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.empty}>No recurring dream signs found yet.</Text>
-          )}
-
-          <TouchableOpacity style={styles.clearButton} onPress={handleClearDreams}>
-            <Text style={styles.clearButtonText}>Clear All Dreams</Text>
-          </TouchableOpacity>
-
-          <Modal visible={!!editingId} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Edit Dream</Text>
-                <TextInput
-                  style={styles.input}
-                  value={editText}
-                  onChangeText={setEditText}
-                  multiline
-                />
-                <TouchableOpacity style={styles.saveButton} onPress={saveEdit}>
-                  <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.sectionTitle}>Your Dreams</Text>
+            <FlatList
+              data={dreamEntries}
+              keyExtractor={(_, idx) => idx.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.entry} onPress={() => startEdit(item.date, item.text)}>
+                  <Text style={styles.dreamText}>{item.text}</Text>
+                  <Text style={styles.dreamDate}>{formatDate(item.date)}</Text>
+                  <Text style={styles.editHint}>Tap to edit</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingId(null)}>
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
+              )}
+              ListEmptyComponent={<Text style={styles.empty}>No dreams yet. Start journaling!</Text>}
+              style={{ marginBottom: 10 }}
+            />
+
+            {/* Analyze My Dreams button opens modal */}
+            <TouchableOpacity
+              style={styles.analyzeButton}
+              onPress={() => {
+                setDreamSigns(extractDreamSigns(dreamEntries));
+                setDreamSignsModalVisible(true);
+              }}
+            >
+              <Text style={styles.analyzeButtonText}>Analyze My Dreams</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.clearButton} onPress={handleClearDreams}>
+              <Text style={styles.clearButtonText}>Clear All Dreams</Text>
+            </TouchableOpacity>
+
+            {/* Edit Dream Modal */}
+            <Modal visible={!!editingId} transparent animationType="slide">
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Edit Dream</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={editText}
+                    onChangeText={setEditText}
+                    multiline
+                  />
+                  <TouchableOpacity style={styles.saveButton} onPress={saveEdit}>
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingId(null)}>
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </Modal>
+            </Modal>
 
-          {/* Debugging: Show original and filtered dream entry */}
-          <View style={styles.debugContainer}>
-            <Text style={styles.debugText}>Original: {dreamEntry}</Text>
-            <Text style={styles.debugText}>Filtered: {filteredText}</Text>
+            {/* Dream Signs Modal */}
+            <Modal
+              visible={dreamSignsModalVisible}
+              transparent
+              animationType="slide"
+              onRequestClose={() => setDreamSignsModalVisible(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Recurring Dream Signs</Text>
+                  <ScrollView style={{ maxHeight: 300 }}>
+                    {dreamSigns.length > 0 ? (
+                      dreamSigns.map(([sign, count], idx) => (
+                        <Text key={idx} style={styles.dreamSign}>
+                          {'\u2022'} {sign} <Text style={{ color: '#888' }}>({count})</Text>
+                        </Text>
+                      ))
+                    ) : (
+                      <Text style={styles.empty}>No recurring dream signs found yet.</Text>
+                    )}
+                  </ScrollView>
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={() => setDreamSignsModalVisible(false)}
+                  >
+                    <Text style={styles.saveButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
-        </View>
+        </LinearGradient>
       </ImageBackground>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   container: { flex: 1, padding: 20 },
   header: { fontSize: 28, fontWeight: 'bold', color: '#fff', marginBottom: 16, textAlign: 'center', textShadowColor: '#3a1c71', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 8 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginBottom: 12, backgroundColor: '#fff', minHeight: 60, color: '#3a1c71' },
@@ -209,5 +230,4 @@ const styles = StyleSheet.create({
   saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   cancelButton: { alignItems: 'center', padding: 8 },
   cancelButtonText: { color: '#d76d77', fontWeight: 'bold', fontSize: 15 },
-
 });

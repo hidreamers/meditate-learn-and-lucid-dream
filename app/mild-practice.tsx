@@ -8,13 +8,13 @@ import {
   Image,
   Animated,
   Dimensions,
-  TextInput
+  TextInput,
+  Platform
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useDreamStore } from '../store/dreamStore';
-
 
 const { width } = Dimensions.get('window');
 
@@ -123,11 +123,11 @@ export default function MILDPracticeScreen() {
   const currentStepData = steps[currentStep];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#3a1c71', '#d76d77', '#ffaf7b']}
-        style={styles.header}
-      >
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="white" />
@@ -146,7 +146,7 @@ export default function MILDPracticeScreen() {
             />
           ))}
         </View>
-      </LinearGradient>
+      </View>
 
       <ScrollView style={styles.content}>
         <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
@@ -171,12 +171,13 @@ export default function MILDPracticeScreen() {
                     <Text style={styles.dreamSignText}>{sign}</Text>
                   </View>
                 ))}
-                {dreamSigns.length === 0 && (
-                  <Text style={styles.noDreamSignsText}>
-                    No dream signs found. Start recording dreams in your journal to identify patterns.
-                  </Text>
-                )}
               </View>
+            )}
+            
+            {currentStep === 2 && dreamSigns.length === 0 && (
+              <Text style={styles.noDreamSignsText}>
+                No dream signs found. Start recording dreams in your journal to identify patterns.
+              </Text>
             )}
             
             {currentStep === 3 && (
@@ -224,7 +225,7 @@ export default function MILDPracticeScreen() {
           )}
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -388,6 +389,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    marginBottom: Platform.OS === 'ios' ? 36 : 24, // More space for iOS
   },
   navButton: {
     flexDirection: 'row',

@@ -7,6 +7,7 @@ import RealityChecks from '../(tabs)/reality-checks';
 import Meditation from '../(tabs)/meditation';
 import JoeDispenza from '../(tabs)/joe-dispenza';
 import About from '../(tabs)/about';
+import Index from '../(tabs)/index';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -21,6 +22,15 @@ export default function AppNavigator() {
           tabBarInactiveTintColor: '#aaa',
         }}
       >
+        <Tab.Screen
+          name="Index"
+          component={Index}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home-outline" color={color} size={size} />
+            ),
+          }}
+        />
         <Tab.Screen
           name="Dream Journal"
           component={DreamJournal}

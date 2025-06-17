@@ -1,18 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, FlatList, Alert, StyleSheet, useColorScheme, Text, Modal, ScrollView, TouchableOpacity, Switch, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView, Platform, StatusBar, Modal, TouchableOpacity, Alert, SafeAreaView, useColorScheme } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Notifications from 'expo-notifications';
+import { Ionicons } from '@expo/vector-icons';
 import RealityCheckCard from '../../components/RealityCheckCard';
 import ScreenSaver from '../../components/ScreenSaver';
 import { RealityCheck } from '../../types';
 import Colors from '../../constants/Colors';
 import { useKeepAwake } from 'expo-keep-awake';
 
-// Example data
-const initialChecks: RealityCheck[] = [
-  { id: '1', name: 'Finger Through Palm', description: 'Try to push your finger through your palm.', completed: false },
-  { id: '2', name: 'Nose Pinch', description: 'Pinch your nose and try to breathe.', completed: false },
-];
+
 
 const realityCheckTypes = [
   {
@@ -23,6 +20,8 @@ const realityCheckTypes = [
   },
   // ...other reality checks...
 ];
+
+const CARD_WIDTH = 320;
 
 export default function RealityChecksScreen() {
   const [checks, setChecks] = useState<RealityCheck[]>(initialChecks);
@@ -148,195 +147,109 @@ export default function RealityChecksScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#1a1646' }}>
-      <View style={{ flex: 1, padding: 16 }}>
-        <Text style={styles.title}>Reality Checks</Text>
-        <Text style={styles.body}>
+    <LinearGradient
+      colors={['#3a1c71', '#b993d6', '#fff']}
+      style={styles.gradientBackground}
+    >
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Reality Checks</Text>
+        <Text style={styles.headerSubtitle}>
           Set reminders and learn techniques to help you perform reality checks throughout your day.
         </Text>
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.card}>
-            <Ionicons name="eye" size={44} color="#d76d77" style={{ marginBottom: 10 }} />
-            <Text style={styles.cardTitle}>Automated Reality Check Reminders</Text>
-            <Text style={styles.cardText}>
-              You will receive a reality check notification every 2 hours while reminders are enabled.
-            </Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Reminders</Text>
-              <Switch
-                value={reminderOn}
-                onValueChange={setReminderOn}
-                trackColor={{ false: '#d1c4e9', true: '#d76d77' }}
-                thumbColor={reminderOn ? '#fff' : '#3a1c71'}
-              />
-            </View>
-            <Text style={styles.countdown}>
-              Next Reality Check in: {formatCountdown(countdown)}
-            </Text>
-            <TouchableOpacity
-              style={styles.testButton}
-              onPress={() => {
-                Alert.alert('Reality Check', 'Ask yourself: Am I dreaming?');
-                scheduleRealityCheckNotification();
-              }}
-            >
-              <Ionicons name="flask" size={20} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={styles.testButtonText}>Test Reality Check</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Reality Check Cards</Text>
-          {realityCheckTypes.map((check) => (
-            <TouchableOpacity
-              key={check.id}
-              style={styles.checkItem}
-              onPress={() => performRealityCheck(check)}
-            >
-              <View style={styles.checkIconContainer}>
-                <Ionicons name={check.icon} size={28} color="#3a1c71" />
-              </View>
-              <View style={styles.checkContent}>
-                <Text style={styles.checkName}>{check.name}</Text>
-                <Text style={styles.checkDescription}>{check.description}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="#ccc" />
-            </TouchableOpacity>
-          ))}
-
-          <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>Keep Your App Awake</Text>
-            <Text style={styles.infoText}>
-              To keep reminders working, activate the screensaver below. This will keep your phone awake and notifications will continue.
-            </Text>
-            <TouchableOpacity
-              style={styles.screensaverButton}
-              onPress={() => setScreenSaverVisible(true)}
-            >
-              <Ionicons name="planet" size={22} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={styles.screensaverButtonText}>Activate Screensaver</Text>
-            </TouchableOpacity>
-          </View>
-          <Modal visible={screenSaverVisible} animationType="fade" transparent={false}>
-            <ScreenSaver onExit={() => setScreenSaverVisible(false)} />
-          </Modal>
-        </ScrollView>
       </View>
-    </SafeAreaView>
+
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#1a1646' }}>
+        <View style={{ flex: 1, padding: 16 }}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.card}>
+              <Text style={styles.bodyText}>
+                Try these reality checks throughout your day to help you become more aware and increase your chances of lucid dreaming.
+              </Text>
+            </View>
+
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>Keep Your App Awake</Text>
+              <Text style={styles.infoText}>
+                To keep reminders working, activate the screensaver below. This will keep your phone awake and notifications will continue.
+              </Text>
+              <TouchableOpacity
+                style={styles.screensaverButton}
+                onPress={() => setScreenSaverVisible(true)}
+              >
+                <Ionicons name="planet" size={22} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.screensaverButtonText}>Activate Screensaver</Text>
+              </TouchableOpacity>
+            </View>
+            <Modal visible={screenSaverVisible} animationType="fade" transparent={false}>
+              <ScreenSaver onExit={() => setScreenSaverVisible(false)} />
+            </Modal>
+          </ScrollView>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
+const HEADER_HEIGHT = 90; // Adjust if your header is taller/shorter
+
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   header: {
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 36, // 36 for iOS, status bar height for Android
+    paddingBottom: 16,
+    paddingHorizontal: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+    color: 'white',
     textAlign: 'center',
-    textShadowColor: '#3a1c71',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#d1c4e9',
-    marginBottom: 18,
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
+    marginTop: 2,
   },
-  container: {
-    padding: 20,
-    paddingBottom: 40,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
+    alignItems: 'center',
   },
   card: {
+    width: CARD_WIDTH,
     backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 24,
-    alignItems: 'center',
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 24,
+    marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.13,
-    shadowRadius: 12,
-    elevation: 4,
-    marginBottom: 18,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 3,
+    alignItems: 'center',
   },
-  cardTitle: {
+  sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#3a1c71',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  cardText: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 12,
-  },
-  label: {
-    fontSize: 16,
-    color: '#3a1c71',
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  countdown: {
-    color: '#d76d77',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginTop: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#fff',
-    marginTop: 10,
+    marginTop: 8,
     textAlign: 'center',
   },
-  checkItem: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  checkIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#f0e6ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  checkContent: {
-    flex: 1,
-  },
-  checkName: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  bodyText: {
+    fontSize: 15,
     color: '#333',
-    marginBottom: 4,
-  },
-  checkDescription: {
-    fontSize: 14,
-    color: '#666',
+    marginBottom: 10,
+    textAlign: 'justify',
   },
   infoCard: {
     backgroundColor: '#f0e6ff',
@@ -374,25 +287,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  testButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#d76d77',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    alignSelf: 'center',
-    marginTop: 18,
-  },
-  testButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  body: { fontSize: 16, color: '#555', textAlign: 'center' },
 });
