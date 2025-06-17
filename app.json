@@ -35,7 +35,10 @@
       "eas": {
         "projectId": "6abdec2d-1d48-49ce-9463-2a4599e8459b"
       }
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   },
   "cli": {
     "appVersionSource": "appVersion"
