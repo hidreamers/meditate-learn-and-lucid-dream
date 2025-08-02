@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, Modal, ImageBackground, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,8 +9,8 @@ const STOP_WORDS = [
 
 const DREAMS_KEY = 'dreamEntries';
 
-function extractDreamSigns(entries) {
-  const wordDreams = {};
+function extractDreamSigns(entries: { text: string }[]): [string, number][] {
+  const wordDreams: Record<string, Set<number>> = {};
   entries.forEach((entry, dreamIdx) => {
     const words = entry.text
       .replace(/[^\w\s]/g, '')
@@ -19,13 +19,13 @@ function extractDreamSigns(entries) {
       .filter(word => word && !STOP_WORDS.includes(word));
     const uniqueWords = new Set(words);
     uniqueWords.forEach(word => {
-      if (!wordDreams[word]) wordDreams[word] = new Set();
+      if (!wordDreams[word]) wordDreams[word] = new Set<number>();
       wordDreams[word].add(dreamIdx);
     });
   });
   // Return array of [word, count], sorted by count descending
   return Object.entries(wordDreams)
-    .map(([word, dreamSet]) => [word, dreamSet.size])
+    .map(([word, dreamSet]) => [word, dreamSet.size] as [string, number])
     .filter(([_, count]) => count >= 2)
     .sort((a, b) => b[1] - a[1]);
 }
@@ -36,6 +36,12 @@ function formatDate(dateString) {
 }
 
 export default function DreamJournalScreen() {
+  // Premium state (demo, default to false)
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const handlePremiumPress = () => setShowPremiumModal(true);
+  const closePremiumModal = () => setShowPremiumModal(false);
+
   const [dreamText, setDreamText] = useState('');
   const [dreamEntries, setDreamEntries] = useState([]);
   const [dreamSigns, setDreamSigns] = useState([]);
@@ -55,6 +61,10 @@ export default function DreamJournalScreen() {
 
   // Save a new dream
   const handleAddDream = async () => {
+    if (!isPremium && dreamEntries.length >= 5) {
+      handlePremiumPress();
+      return;
+    }
     if (!dreamText.trim()) {
       Alert.alert('Please enter your dream.');
       return;
@@ -133,6 +143,10 @@ export default function DreamJournalScreen() {
             <TouchableOpacity
               style={styles.analyzeButton}
               onPress={() => {
+                if (!isPremium) {
+                  handlePremiumPress();
+                  return;
+                }
                 setDreamSigns(extractDreamSigns(dreamEntries));
                 setDreamSignsModalVisible(true);
               }}
@@ -195,6 +209,38 @@ export default function DreamJournalScreen() {
                 </View>
               </View>
             </Modal>
+
+            {/* Premium Modal */}
+            <Modal
+              visible={showPremiumModal}
+              animationType="slide"
+              transparent
+              onRequestClose={closePremiumModal}
+            >
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', maxWidth: 320 }}>
+                  <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 12, color: '#3a1c71' }}>Go Premium</Text>
+                  <Text style={{ fontSize: 16, color: '#333', marginBottom: 20, textAlign: 'center' }}>
+                    Unlock unlimited dream entries and dream analysis!
+                  </Text>
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#3a1c71', borderRadius: 24, paddingVertical: 12, paddingHorizontal: 32, marginBottom: 12 }}
+                    onPress={() => { setIsPremium(true); closePremiumModal(); }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Unlock Premium (Demo)</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={closePremiumModal}>
+                    <Text style={{ color: '#3a1c71', marginTop: 8 }}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+
+            {!isPremium && (
+              <TouchableOpacity style={styles.premiumBanner} onPress={handlePremiumPress}>
+                <Text style={styles.premiumBannerText}>Upgrade to Premium</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </LinearGradient>
       </ImageBackground>
@@ -230,4 +276,10 @@ const styles = StyleSheet.create({
   saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   cancelButton: { alignItems: 'center', padding: 8 },
   cancelButtonText: { color: '#d76d77', fontWeight: 'bold', fontSize: 15 },
+  premiumBanner: { backgroundColor: '#fffae3', borderRadius: 8, padding: 12, alignItems: 'center', marginTop: 16 },
+  premiumBannerText: { color: '#333', fontWeight: 'bold' },
+  premiumText: { fontSize: 16, color: '#333', marginBottom: 12 },
+  feature: { fontSize: 16, color: '#666', marginBottom: 8 },
+  closeButton: { backgroundColor: '#3a1c71', borderRadius: 8, padding: 12, alignItems: 'center' },
+  closeButtonText: { color: '#fff', fontWeight: 'bold' },
 });

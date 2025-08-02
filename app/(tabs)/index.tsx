@@ -12,18 +12,20 @@ import ScreenSaver from '../../components/ScreenSaver';
 const nightAudio = { uri: 'https://www.hidreamers.com/wp-content/uploads/2025/06/notification.mp3' };
 const dayAudio = { uri: 'https://www.jerimiahmolfese.com/dream.wav' };
 
-const TABS = [
-  { name: 'Home', route: '/', description: 'Main dashboard and entry point for the app.' },
-  { name: 'Reality Checks', route: '/reality-checks', description: 'Perform and track your daily reality checks.' },
-  { name: 'Meditations', route: '/meditation', description: 'Guided meditations to help with lucid dreaming.' },
-  { name: 'Joe Dispenza Meditations', route: '/joe-dispenza', description: 'Special meditations by Dr. Joe Dispenza.' },
-  { name: 'About', route: '/about', description: 'Learn about the app and lucid dreaming.' },
-  { name: 'Books', route: '/books', description: 'Recommended reading and resources for lucid dreaming.' },
-  { name: 'Instructions', route: '/instructions', description: 'Step-by-step instructions for using the app and lucid dreaming techniques.' },
-  { name: 'Dream Journal', route: '/dream-journal', description: 'Write, view, and analyze your dreams.' },
-];
-
 const INITIAL_TIMER = 2 * 60 * 60; // 2 hours in seconds
+
+interface DreamCardProps {
+  icon: any;
+  iconColor: string;
+  title: string;
+  description: string;
+  showSound: boolean;
+  reminderValue: boolean;
+  onReminderChange: (value: boolean) => void;
+  soundValue: boolean;
+  onSoundChange: (value: boolean) => void;
+  countdown: string;
+}
 
 function DreamCard({
   icon,
@@ -36,7 +38,7 @@ function DreamCard({
   soundValue,
   onSoundChange,
   countdown,
-}) {
+}: DreamCardProps) {
   return (
     <View style={styles.nicerCard}>
       <Ionicons name={icon} size={40} color={iconColor} style={{ marginBottom: 12 }} />
@@ -94,6 +96,8 @@ export default function TabIndex() {
         shouldShowAlert: true,
         shouldPlaySound: false,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
       }),
     });
 
@@ -122,7 +126,7 @@ export default function TabIndex() {
         const { sound } = await Audio.Sound.createAsync(nightAudio);
         await sound.playAsync();
         sound.setOnPlaybackStatusUpdate(status => {
-          if (status.didJustFinish) {
+          if (status.isLoaded && status.didJustFinish) {
             sound.unloadAsync();
           }
         });
@@ -136,9 +140,8 @@ export default function TabIndex() {
       content: {
         title: 'Night Dream Practice',
         body: 'I AM DREAMING',
-        channelId: 'default',
       },
-      trigger: { seconds: 2 },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2 },
     });
   };
   const toggleNightPractice = (value) => {
@@ -172,7 +175,7 @@ export default function TabIndex() {
         const { sound } = await Audio.Sound.createAsync(dayAudio);
         await sound.playAsync();
         sound.setOnPlaybackStatusUpdate(status => {
-          if (status.didJustFinish) {
+          if (status.isLoaded && status.didJustFinish) {
             sound.unloadAsync();
           }
         });
@@ -186,9 +189,8 @@ export default function TabIndex() {
       content: {
         title: 'Day Practice',
         body: 'IS THIS A DREAM?',
-        channelId: 'default',
       },
-      trigger: { seconds: 2 },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2 },
     });
   };
   useEffect(() => {
@@ -226,9 +228,8 @@ export default function TabIndex() {
       content: {
         title: 'Meditation Reminder',
         body: 'Take a moment to meditate and reflect.',
-        channelId: 'default',
       },
-      trigger: { seconds: 2 },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2 },
     });
   };
   useEffect(() => {
@@ -266,9 +267,8 @@ export default function TabIndex() {
       content: {
         title: 'Journal Reminder',
         body: 'Write a quick journal entry about your day or dreams.',
-        channelId: 'default',
       },
-      trigger: { seconds: 2 },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2 },
     });
   };
   useEffect(() => {
@@ -310,7 +310,7 @@ export default function TabIndex() {
     };
   }, []);
 
-  const formatCountdown = (seconds) => {
+  const formatCountdown = (seconds: number | null): string => {
     if (seconds === null) return '--:--';
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -326,8 +326,8 @@ export default function TabIndex() {
       style={styles.gradientBackground}
     >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Lucid Dreaming Assistant</Text>
-        <Text style={styles.headerSubtitle}>Your guide to conscious dreaming</Text>
+        <Text style={styles.headerTitle}>Meditate. Learn. Dream.</Text>
+        <Text style={styles.headerSubtitle}>Your guide to conscious dreaming and mindful transformation</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ alignItems: 'center', paddingTop: 24 }}>
@@ -427,7 +427,7 @@ export default function TabIndex() {
                 {"\n"}When you finish, remember to record any lucid dreams in your journal!
               </Text>
               <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
-                <Text style={{ fontWeight: 'bold', color: '#3a1c71' }}>4. Tab Navigation:</Text> Use the tabs at the bottom of the screen to quickly switch between Dream Journal, Reality Checks, MILD Practice, and other features. Just tap a tab icon to go directly to that section.
+                <Text style={{ fontWeight: 'bold', color: '#3a1c71' }}>4. Binaural Beats:</Text> Navigate to the Binaural Beats tab to access custom audio sessions. Select multiple loops for each ear to create personalized soundscapes. Choose from Delta (deep sleep), Theta (meditation), Alpha (relaxation), Beta (focus), Gamma (peak consciousness), and nature sounds like Ocean and Thunder. Use headphones for the full binaural effect. Mix different frequencies to enhance lucid dreaming, meditation, or relaxation states.
               </Text>
               <Text style={{ fontSize: 14, color: '#555', marginBottom: 4 }}>
                 <Text style={{ fontWeight: 'bold', color: '#3a1c71' }}>5. Screensaver & Reminders:</Text> Activate the screensaver to keep your phone awake and ensure reminders continue to work. This is helpful if you want to keep reality check reminders running overnight or during naps.
@@ -446,34 +446,6 @@ export default function TabIndex() {
           style={styles.largeImage}
           resizeMode="contain"
         />
-
-        {/* Dropdown Navigation */}
-        <View style={styles.dropdownContainer}>
-          <TouchableOpacity
-            style={styles.dropdownToggle}
-            onPress={() => setShowDropdown(!showDropdown)}
-          >
-            <Text style={styles.dropdownToggleText}>
-              {showDropdown ? 'Hide Tab Navigation' : 'Show Tab Navigation'}
-            </Text>
-          </TouchableOpacity>
-          {showDropdown && (
-            <View style={styles.dropdownContent}>
-              {TABS.map(tab => (
-                <View key={tab.route} style={styles.dropdownItem}>
-                  <Text style={styles.tabName}>{tab.name}</Text>
-                  <Text style={styles.tabDesc}>{tab.description}</Text>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => router.push(tab.route)}
-                  >
-                    <Text style={styles.buttonText}>Go to {tab.name}</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
 
         {/* Nicer Cards with Functionality */}
         <View style={styles.cardContainer}>
@@ -509,6 +481,8 @@ export default function TabIndex() {
             showSound={false}
             reminderValue={meditationOn}
             onReminderChange={setMeditationOn}
+            soundValue={false}
+            onSoundChange={() => {}}
             countdown={formatCountdown(meditationCountdown)}
           />
           <DreamCard
@@ -519,18 +493,20 @@ export default function TabIndex() {
             showSound={false}
             reminderValue={journalOn}
             onReminderChange={setJournalOn}
+            soundValue={false}
+            onSoundChange={() => {}}
             countdown={formatCountdown(journalCountdown)}
           />
         </View>
 
         {/* Screensaver Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.screensaverButton}
           onPress={() => setScreenSaverVisible(true)}
         >
           <Ionicons name="planet" size={22} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.screensaverButtonText}>Activate Screensaver</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Screen Saver Modal */}
         <Modal visible={screenSaverVisible} animationType="fade" transparent={false}>
@@ -585,54 +561,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     alignSelf: 'center',
     borderRadius: 14,
-  },
-  dropdownContainer: { padding: 8 },
-  dropdownToggle: {
-    backgroundColor: '#3a1c71',
-    borderRadius: 8,
-    padding: 8,
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  dropdownToggleText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  dropdownContent: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 8,
-    marginBottom: 10,
-    elevation: 2,
-  },
-  dropdownItem: {
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 6,
-  },
-  tabName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#d76d77',
-  },
-  tabDesc: {
-    fontSize: 13,
-    color: '#555',
-    marginBottom: 4,
-  },
-  button: {
-    backgroundColor: '#3a1c71',
-    borderRadius: 8,
-    padding: 6,
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -716,6 +644,46 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
+  },
+  dropdownToggle: {
+    backgroundColor: '#3a1c71',
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  dropdownToggleText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  dropdownItem: {
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 6,
+  },
+  tabName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#d76d77',
+  },
+  tabDesc: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 4,
+  },
+  button: {
+    backgroundColor: '#3a1c71',
+    borderRadius: 8,
+    padding: 6,
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   dropdownHeader: {
     flexDirection: 'row',

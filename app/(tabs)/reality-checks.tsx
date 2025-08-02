@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -23,48 +23,48 @@ const realityCheckTypes = [
     id: '1',
     name: 'Hand Check',
     description: 'Look at your hands. In dreams, hands often appear distorted or have the wrong number of fingers.',
-    icon: 'hand-left',
+    icon: 'hand-left-outline',
   },
   {
     id: '2',
     name: 'Text Check',
     description: 'Read some text, look away, then read it again. In dreams, text often changes when you look at it twice.',
-    icon: 'text',
+    icon: 'text-outline',
   },
   {
     id: '3',
     name: 'Breathing Check',
     description: 'Try to breathe with your nose closed. In dreams, you might still be able to breathe.',
-    icon: 'fitness',
+    icon: 'fitness-outline',
   },
   {
     id: '4',
     name: 'Jump Check',
     description: 'Jump slightly. In dreams, you might float or jump higher than normal.',
-    icon: 'arrow-up',
+    icon: 'arrow-up-outline',
   },
   {
     id: '5',
     name: 'Light Switch Check',
     description: "Flip a light switch. In dreams, light switches often don't work properly.",
-    icon: 'bulb',
+    icon: 'bulb-outline',
   },
   {
     id: '6',
     name: 'Mirror Check',
     description: 'Look in a mirror. In dreams, your reflection might be distorted or different.',
-    icon: 'person',
+    icon: 'person-outline',
   },
 ];
 
 export default function RealityChecks() {
   const [reminderOn, setReminderOn] = useState(false);
   const [screenSaverVisible, setScreenSaverVisible] = useState(false);
-  const [countdown, setCountdown] = useState(null);
-  const [selectedCheck, setSelectedCheck] = useState(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [selectedCheck, setSelectedCheck] = useState<string | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
-  const intervalRef = useRef(null);
-  const timerRef = useRef(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Notification handler and Android channel
   useEffect(() => {
@@ -73,6 +73,8 @@ export default function RealityChecks() {
         shouldShowAlert: true,
         shouldPlaySound: false,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
       }),
     });
 
@@ -92,14 +94,17 @@ export default function RealityChecks() {
   }, []);
 
   // Schedule a local notification for Reality Check
-  const scheduleRealityCheckNotification = async (checkName) => {
+  const scheduleRealityCheckNotification = async (checkName: string) => {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Reality Check Reminder',
         body: `Time for your "${checkName}" reality check!`,
-        channelId: 'default',
       },
-      trigger: { seconds: 2 * 60 * 60 }, // 2 hours
+      trigger: {
+        type: 'timeInterval',
+        seconds: 2 * 60 * 60,
+        repeats: false,
+      },
     });
   };
 
@@ -113,7 +118,7 @@ export default function RealityChecks() {
         setCountdown(2 * 60 * 60);
       }, 2 * 60 * 60 * 1000);
       timerRef.current = setInterval(() => {
-        setCountdown(prev => (prev > 0 ? prev - 1 : 2 * 60 * 60));
+        setCountdown(prev => (prev && prev > 0 ? prev - 1 : 2 * 60 * 60));
       }, 1000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -130,17 +135,17 @@ export default function RealityChecks() {
 
   // Also run reminders while screensaver is active
   useEffect(() => {
-    if (screenSaverVisible && reminderOn) {
-      scheduleRealityCheckNotification();
+    if (screenSaverVisible && reminderOn && selectedCheck) {
+      scheduleRealityCheckNotification(selectedCheck);
       if (!intervalRef.current) {
         intervalRef.current = setInterval(() => {
-          scheduleRealityCheckNotification();
+          scheduleRealityCheckNotification(selectedCheck);
           setCountdown(2 * 60 * 60);
         }, 2 * 60 * 60 * 1000);
       }
       if (!timerRef.current) {
         timerRef.current = setInterval(() => {
-          setCountdown(prev => (prev > 0 ? prev - 1 : 2 * 60 * 60));
+          setCountdown(prev => (prev && prev > 0 ? prev - 1 : 2 * 60 * 60));
         }, 1000);
       }
     } else if (!screenSaverVisible && (!reminderOn || !screenSaverVisible)) {
@@ -153,21 +158,21 @@ export default function RealityChecks() {
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [screenSaverVisible, reminderOn]);
+  }, [screenSaverVisible, reminderOn, selectedCheck]);
 
   // Format seconds as hh:mm:ss or mm:ss
-  const formatCountdown = (seconds) => {
+  const formatCountdown = (seconds: number | null) => {
     if (seconds === null) return '--:--';
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return h > 0
-      ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-      : `${m}:${s.toString().padStart(2, '0')}`;
+      ? `${h}:${('0' + m).slice(-2)}:${('0' + s).slice(-2)}`
+      : `${m}:${('0' + s).slice(-2)}`;
   };
 
   // Perform a reality check (show alert and notification)
-  const performRealityCheck = (check) => {
+  const performRealityCheck = (check: typeof realityCheckTypes[0]) => {
     setSelectedCheck(check.name);
     Alert.alert(
       check.name,
@@ -178,7 +183,7 @@ export default function RealityChecks() {
   };
 
   // Handle reminder switch
-  const handleReminderSwitch = (value) => {
+  const handleReminderSwitch = (value: boolean) => {
     if (value && !selectedCheck) {
       Alert.alert(
         'Select a Reality Check',
@@ -255,7 +260,7 @@ export default function RealityChecks() {
             onPress={() => performRealityCheck(check)}
           >
             <View style={styles.checkIconContainer}>
-              <Ionicons name={check.icon} size={28} color="#3a1c71" />
+              <Ionicons name={check.icon as any} size={28} color="#3a1c71" />
             </View>
             <View style={styles.checkContent}>
               <Text style={styles.checkName}>{check.name}</Text>

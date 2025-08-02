@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "lucid-dreaming-app",
-    "slug": "lucid-dreaming-",
+    "name": "Meditate-Dream-Learn",
+    "slug": "meditatedreamlearn",
+    "owner": "hidreamers",
     "version": "1.0.0",
     "sdkVersion": "53.0.0",
     "platforms": [
@@ -9,36 +10,49 @@
       "android"
     ],
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/favicon.png",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/ac32c983-aea4-435a-a941-3f1dc03a81a9"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/favicon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.hidreamers.luciddreaming"
+      "package": "com.hidreamers.meditatedreamlearn",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
+      "runtimeVersion": "1.0.0"
     },
     "extra": {
       "eas": {
-        "projectId": "6abdec2d-1d48-49ce-9463-2a4599e8459b"
-      }
+        "projectId": "65bb8e18-cbbb-4eec-82c5-a5bf56c3dd49"
+      },
+      "router": {}
     },
     "plugins": [
-      "expo-router"
-    ]
+      "expo-router",
+      "expo-web-browser",
+      "expo-av"
+    ],
+    "scheme": "meditatedreamlearn"
   },
   "cli": {
     "appVersionSource": "appVersion"

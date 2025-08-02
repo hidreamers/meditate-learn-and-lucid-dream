@@ -15,8 +15,8 @@ const STOP_WORDS = [
   "the", "and", "a", "to", "of", "in", "was", "for", "on", "with", "my", "i", "it", "at", "is", "again", "this", "time", "couldn't", "find", "felt", "lost", "over", "saw", "giant", "clock", "school", "shoes", "classroom", "dog", "wall", "melting", "city", "dream", "dreaming", "dreamt"
 ];
 
-function extractDreamSigns(entries) {
-  const wordDreams = {};
+function extractDreamSigns(entries: string[]): string[] {
+  const wordDreams: { [key: string]: Set<number> } = {};
   entries.forEach((entry, dreamIdx) => {
     const words = entry
       .replace(/[^\w\s]/g, '')
@@ -115,6 +115,55 @@ export default function InstructionsScreen() {
           <Text style={styles.sectionTitle}>8. How Dream Sign Analysis Works</Text>
           <Text style={styles.text}>
             When you write in your Dream Journal, the app looks for patterns and keywords in your entries. These patterns are called “dream signs”—things that often appear in your dreams, like certain people, places, feelings, or events. Over time, the app helps you notice what shows up most often in your dreams. This makes it easier to recognize when you’re dreaming, which can help you become lucid (aware that you’re dreaming) while you sleep.
+          </Text>
+
+          <Text style={styles.sectionTitle}>9. How Binaural Beats Work</Text>
+          <Text style={styles.text}>
+            <Text style={styles.bold}>What are Binaural Beats?</Text>
+            {"\n"}Binaural beats are a special type of audio that can help relax your mind and enhance meditation. When you wear headphones and play slightly different frequencies in each ear (for example, 440 Hz in your left ear and 444 Hz in your right ear), your brain automatically creates a "beat" at the difference between these frequencies (4 Hz in this example).
+          </Text>
+          
+          <Text style={styles.text}>
+            <Text style={styles.bold}>How to Use the Binaural Beats Page:</Text>
+            {"\n"}1. <Text style={styles.bold}>Choose Audio for Each Ear:</Text> You'll see two sections—"Left Ear" and "Right Ear." You can select different audio loops for each ear independently.
+            
+            {"\n"}2. <Text style={styles.bold}>Multi-Select Feature:</Text> Unlike regular music players, you can select multiple audio files for each ear at the same time. This lets you layer different sounds and frequencies to create your perfect meditation soundscape.
+            
+            {"\n"}3. <Text style={styles.bold}>Available Audio Types:</Text>
+            {"\n"}   • <Text style={styles.italic}>Frequency Tones:</Text> Pure tones like Alpha waves (8-13 Hz) for relaxation, Beta waves (13-30 Hz) for focus, Theta waves (4-8 Hz) for deep meditation, and Delta waves (0.5-4 Hz) for deep sleep.
+            {"\n"}   • <Text style={styles.italic}>Ambient Sounds:</Text> Ocean waves, thunderstorms, and nature sounds that can be mixed with frequencies.
+            {"\n"}   • <Text style={styles.italic}>Chakra Tones:</Text> Specific frequencies associated with energy centers in the body.
+            {"\n"}   • <Text style={styles.italic}>Meditation Bowls:</Text> Harmonic bowl sounds that create soothing resonances.
+          </Text>
+          
+          <Text style={styles.text}>
+            <Text style={styles.bold}>Step-by-Step Instructions:</Text>
+            {"\n"}1. Put on good-quality headphones (this is essential for binaural beats to work properly).
+            {"\n"}2. Go to the Binaural Beats tab from the navigation menu.
+            {"\n"}3. In the "Left Ear" section, tap on one or more audio loops you want to hear in your left ear.
+            {"\n"}4. In the "Right Ear" section, tap on one or more audio loops you want to hear in your right ear.
+            {"\n"}5. Tap the "Play" button to start your personalized binaural beats session.
+            {"\n"}6. Adjust the volume to a comfortable level—it should be audible but not overwhelming.
+            {"\n"}7. Close your eyes, relax, and let the beats guide your meditation or relaxation.
+          </Text>
+          
+          <Text style={styles.text}>
+            <Text style={styles.bold}>Tips for Best Results:</Text>
+            {"\n"}• Use good headphones or earbuds—speakers won't create the binaural effect.
+            {"\n"}• Start with sessions of 10-20 minutes and gradually increase as you get used to the experience.
+            {"\n"}• Try different combinations: pair a low-frequency tone in one ear with ocean sounds in the other.
+            {"\n"}• Use Alpha frequencies (8-13 Hz) for general relaxation and stress relief.
+            {"\n"}• Use Theta frequencies (4-8 Hz) for deep meditation and visualization.
+            {"\n"}• Use Delta frequencies (0.5-4 Hz) before sleep to promote deeper rest.
+            {"\n"}• Experiment with layering: select multiple gentle sounds for a richer experience.
+          </Text>
+          
+          <Text style={styles.text}>
+            <Text style={styles.bold}>Safety Notes:</Text>
+            {"\n"}• Keep volume at moderate levels to protect your hearing.
+            {"\n"}• If you experience any discomfort, headaches, or dizziness, stop the session and lower the volume.
+            {"\n"}• Don't use binaural beats while driving or operating machinery.
+            {"\n"}• People with epilepsy should consult a doctor before using binaural beats.
           </Text>
 
           <Text style={styles.sectionTitle}>Need More Help?</Text>

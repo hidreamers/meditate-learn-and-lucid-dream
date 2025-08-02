@@ -1,22 +1,36 @@
-const http = require('http');
+﻿const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+const buildDir = path.join(__dirname, 'website', 'build');
+
 const server = http.createServer((req, res) => {
-  if (req.url === '/' || req.url === '/index.html') {
-    fs.readFile(path.join(__dirname, 'index.html'), (err, content) => {
+  let filePath = path.join(buildDir, req.url === '/' ? 'index.html' : req.url);
+
+  fs.stat(filePath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      // Fallback to index.html for client-side routing
+      filePath = path.join(buildDir, 'index.html');
+    }
+    fs.readFile(filePath, (err, content) => {
       if (err) {
         res.writeHead(500);
-        res.end('Error loading index.html');
+        res.end('Error loading file');
         return;
       }
-      res.writeHead(200, { 'Content-Type': 'text/html' });
+      // Set content type based on file extension
+      const ext = path.extname(filePath);
+      let contentType = 'text/html';
+      if (ext === '.js') contentType = 'application/javascript';
+      else if (ext === '.css') contentType = 'text/css';
+      else if (ext === '.json') contentType = 'application/json';
+      else if (ext === '.png') contentType = 'image/png';
+      else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+      else if (ext === '.ico') contentType = 'image/x-icon';
+      res.writeHead(200, { 'Content-Type': contentType });
       res.end(content);
     });
-  } else {
-    res.writeHead(404);
-    res.end('Not found');
-  }
+  });
 });
 
 const PORT = 3000;

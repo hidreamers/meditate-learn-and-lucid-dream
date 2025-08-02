@@ -1,15 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Dimensions, Platform, StatusBar } from 'react-native';
+﻿import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Dimensions, Platform, StatusBar, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const books = [
   {
-     id: '0',
     id: '1',
     title: "Convergence and the Love Code",
     cover: "https://www.hidreamers.com/wp-content/uploads/2025/05/Convergence-Through-a-Post-Apocalyptic-Dallas.png",
     link: "https://www.jerimiahmolfese.com/The_Love_Code.epub",
-    description: "A thrilling journey through a transformed world and the power of dreams.",
+    description: "In a near-future world ravaged by nuclear devastation and an AI uprising, humanity finds itself on the brink of extinction. As society collapses and advanced machines wage war against the remnants of human civilization, a groundbreaking discovery offers a flicker of hope—a portal into an uncharted quantum realm where the laws of reality can be rewritten.\n\nConvergence and the Love Code is a sweeping tale of resilience, hope, and the transformative power of love—a story that challenges the boundaries between man and machine, and dares to imagine a world where even in the face of annihilation, the human spirit finds a way to prevail.",
   },
   {
     id: '2',
@@ -27,7 +26,7 @@ const books = [
   },
   {
     id: '4',
-    title: "Manifestation: Unlock the Secrets of Lucid Dreaming and Alchemy",
+    title: "Manifestation Through Spiritual Power: Unlock the secrets of Lucid Dreaming and Alchemy",
     cover: "https://www.hidreamers.com/wp-content/uploads/2025/05/Manifestation-Unlock-the-Secrets-of-Lucid-Dreaming-and-Alchemy--scaled.jpeg",
     link: "https://www.jerimiahmolfese.com/Manifestation.epub",
     description: "Discover the connection between lucid dreaming and the art of manifestation.",
@@ -67,11 +66,24 @@ const books = [
     link: "https://www.jerimiahmolfese/A_Dreamer_Odyssey.epub",
     description: "“A Dreamer’s Odyssey: True Stories of a Dream Traveler” is an intimate journey into the real-life experiences of lucid dreaming and spiritual discovery.",
   },
+  {
+    id: '10',
+    title: "The Seventh Angel",
+    cover: "https://www.hidreamers.com/wp-content/uploads/2025/05/cover-scaled.jpg",
+    link: "https://www.dropbox.com/scl/fi/h0he9ko29yf3qx3jmvhjg/The-seventh-angel.pdf?rlkey=kiq9ax36gwd9x7cskjal6md88&dl=0",
+    description: `"The Seventh Angel" delves into the life of Seth, a young man who grapples with profound questions of spirituality and reality through the realm of lucid dreaming. After the sudden death of his father, a scientist exploring the boundaries of consciousness, Seth inherits a legacy of dream experimentation that challenges his perception of life and his purpose in the cosmos. The narrative weaves a tapestry of metaphysical exploration and personal transformation, inviting readers to question the very fabric of their existence. My inspiration for "The Seventh Angel" stems from my deep interest in spiritual philosophy and the human psyche's untapped potentials.`,
+  },
 ];
 
 const { width } = Dimensions.get('window');
 
 export default function BooksScreen() {
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  const handlePremiumPress = () => setShowPremiumModal(true);
+  const closePremiumModal = () => setShowPremiumModal(false);
+
   return (
     <LinearGradient
       colors={['#3a1c71', '#b993d6', '#fff']}
@@ -79,29 +91,27 @@ export default function BooksScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Books by Jerimiah Molfese</Text>
-        <Text style={styles.headerSubtitle}></Text>
+        <Text style={styles.headerSubtitle}>
+          Recommended reading and resources for lucid dreaming
+        </Text>
       </View>
-
-      <Text style={styles.description}>
-        You will need the{' '}
-        <Text
-          style={styles.link}
-          onPress={() =>
-            Linking.openURL('https://www.amazon.com/b/ref=ruby_redirect?ie=UTF8&node=16571048011')
-          }
-        >
-          Kindle Reader app
-        </Text>{' '}
-        to access these books.
-      </Text>
+      <View style={styles.card}>
+        <Text style={styles.bodyText}>
+          You can use the{' '}
+          <Text
+            style={styles.linkText}
+            onPress={() =>
+              Linking.openURL('https://www.amazon.com/b/ref=ruby_redirect?ie=UTF8&node=16571048011')
+            }
+          >
+            Kindle Reader app
+          </Text>{' '}
+          to access these books.
+        </Text>
+      </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {books.map(book => (
-          <TouchableOpacity
-            key={book.id}
-            style={styles.bookCard}
-            onPress={() => Linking.openURL(book.link)}
-            activeOpacity={0.85}
-          >
+          <View key={book.id} style={styles.bookCard}>
             <Image
               source={{ uri: book.cover }}
               style={styles.bookCover}
@@ -109,10 +119,37 @@ export default function BooksScreen() {
             />
             <Text style={styles.bookTitle}>{book.title}</Text>
             <Text style={styles.bookDesc}>{book.description}</Text>
-            <Text style={styles.bookLink}>Read now</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{ marginTop: 2, opacity: isPremium ? 1 : 0.5, flexDirection: 'row', alignItems: 'center' }}
+              onPress={isPremium ? () => Linking.openURL(book.link) : handlePremiumPress}
+              activeOpacity={0.85}
+              disabled={!isPremium}
+            >
+              <Text style={styles.bookLink}>Read now</Text>
+              {!isPremium && <Text style={{ marginLeft: 6, color: '#d76d77', fontSize: 16 }}>🔒</Text>}
+            </TouchableOpacity>
+          </View>
         ))}
       </ScrollView>
+      {/* Premium Modal */}
+      <Modal
+        visible={showPremiumModal}
+        animationType="slide"
+        transparent
+        onRequestClose={closePremiumModal}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', maxWidth: 320 }}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 12, color: '#3a1c71' }}>Go Premium</Text>
+            <Text style={{ fontSize: 16, color: '#333', marginBottom: 20, textAlign: 'center' }}>
+              Unlock all books and audio content!
+            </Text>
+            <TouchableOpacity onPress={closePremiumModal}>
+              <Text style={{ color: '#3a1c71', marginTop: 8 }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -174,7 +211,7 @@ const styles = StyleSheet.create({
   },
   bookCover: {
     width: width - 80,
-    aspectRatio: 2 / 3, // Ensures the image keeps a book-like shape
+    aspectRatio: 2 / 3,
     borderRadius: 12,
     marginBottom: 16,
     backgroundColor: '#eee',
@@ -198,5 +235,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
     marginTop: 2,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 24,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  bodyText: {
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
+  },
+  linkText: {
+    color: '#3a1c71',
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
   },
 });

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Text, View, Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import AppNavigator from './app/navigation/AppNavigator';
+// import AppNavigator from './app/navigation/AppNavigator'; // REMOVE old navigation
 import { registerForPushNotificationsAsync } from './notifications';
+import FloatingNav from './app/screens/FloatingNav'; // Use only FloatingNav
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -15,8 +16,6 @@ Notifications.setNotificationHandler({
 export default function App() {
   const [expoPushToken, setExpoPushToken] = useState('');
 
- 
-
   return (
     <View style={{ flex: 1 }}>
       {expoPushToken ? (
@@ -25,7 +24,8 @@ export default function App() {
           <Text selectable style={{ color: '#3a1c71' }}>{expoPushToken}</Text>
         </View>
       ) : null}
-      <AppNavigator />
+      {/* Only render FloatingNav, not AppNavigator */}
+      <FloatingNav />
     </View>
   );
 }
